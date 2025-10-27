@@ -1,0 +1,110 @@
+{# Declaramos que este es un documento HTML mínimo. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {# Definimos el juego de caracteres para evitar problemas con acentos. #}
+    <meta charset="UTF-8">
+    {# Aseguramos que se vea bien en móviles. #}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# Título de la página que aparecerá en la pestaña del navegador. #}
+    <title>Listado de tareas por usuario</title>
+    {# Estilos simples en línea para dar legibilidad sin dependencias externas. #}
+    <style>
+        /* Estilo base para el cuerpo del documento. */
+        body { font-family: system-ui, Arial, sans-serif; margin: 24px; color: #222; }
+        /* Estilo de la cabecera de la página. */
+        h1 { margin-bottom: 8px; }
+        /* Contenedor de filtros para alinear los campos. */
+        .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 16px; }
+        /* Estilos simples para inputs y select. */
+        input, select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; }
+        /* Botón de acción básico. */
+        button { padding: 8px 12px; border: 1px solid #0a7; background: #0a7; color: white; border-radius: 4px; cursor: pointer; }
+        /* Botón secundario para reset. */
+        .secondary { background: #555; border-color: #555; }
+        /* Tabla con bordes y espaciado mínimo. */
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        /* Encabezado con fondo leve. */
+        thead { background: #f7f7f7; }
+        /* Celdas con borde inferior. */
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+        /* Pie de paginación. */
+        .pager { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+        /* Mensaje de estado para errores o vacío. */
+        .status { margin-top: 8px; color: #c00; }
+        /* Etiquetas de filtro para claridad. */
+        label { display: flex; flex-direction: column; font-size: 12px; color: #333; }
+        /* Caja around la tabla para separar visualmente. */
+        .panel { border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #fff; }
+    </style>
+</head>
+<body>
+{# Título principal de la página con el id de usuario interpolado. #}
+<h1>Tareas del usuario #{{ userId }}</h1>
+
+{# Bloque de filtros con inputs para fechas y proyecto. #}
+<div class="filters">
+    {# Input de fecha 'desde' con valor inicial si viene del servidor. #}
+    <label>Desde (YYYY-MM-DD)
+        <input type="date" id="from" value="{{ initialFrom|default('') }}">
+    </label>
+
+    {# Input de fecha 'hasta' con valor inicial si viene del servidor. #}
+    <label>Hasta (YYYY-MM-DD)
+        <input type="date" id="to" value="{{ initialTo|default('') }}">
+    </label>
+
+    {# Select de proyecto; inicialmente vacío, JS lo llenará con opciones únicas detectadas. #}
+    <label>Proyecto
+        <select id="projectId">
+            <option value="">Todos</option>
+        </select>
+    </label>
+
+    {# Botón para aplicar filtros y refrescar la tabla. #}
+    <button id="btnApply">Aplicar filtros</button>
+    {# Botón para limpiar filtros y volver a la primera página. #}
+    <button id="btnReset" class="secondary">Reset</button>
+</div>
+
+{# Panel contenedor de la tabla y la paginación. #}
+<div class="panel">
+    {# Tabla donde mostraremos los datos de tareas. #}
+    <table>
+        <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Tarea</th>
+            <th>Proyecto</th>
+            <th>Minutos</th>
+            <th>Tarifa</th>
+            <th>Importe</th>
+        </tr>
+        </thead>
+        <tbody id="rows">
+        {# El cuerpo de la tabla lo rellenará el JS con filas. #}
+        </tbody>
+    </table>
+
+    {# Controles de paginación: anterior, info de página y siguiente. #}
+    <div class="pager">
+        <button id="btnPrev">Anterior</button>
+        <span id="pageInfo">Página 1 de 1</span>
+        <button id="btnNext">Siguiente</button>
+    </div>
+
+    {# Mensajes de estado para errores o cuando no hay datos. #}
+    <div id="status" class="status"></div>
+</div>
+
+{# Inserta variables del servidor en atributos data para que JS pueda usarlas. #}
+<div id="boot"
+     data-user-id="{{ userId }}"
+     data-initial-from="{{ initialFrom|default('') }}"
+     data-initial-to="{{ initialTo|default('') }}"
+     data-initial-pid="{{ initialPid|default('') }}"></div>
+
+{# Cargamos el script del frontend que hará el fetch a la API y pintará la tabla. #}
+<script src="/js/tasks.js"></script>
+</body>
+</html>
